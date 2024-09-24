@@ -18,13 +18,14 @@ import org.apache.http.client.methods.CloseableHttpResponse
 import org.apache.http.impl.client.HttpClients;
 import groovy.json.*;
 
+//API Variables
 String sFirstName = ApplicantFirstName;
 String sLastName = ApplicantLastName;
 String sEmailAddress = ApplicantEmail;
 String sZip = ApplicantZip;
 String sCTMCert = ApplicantCTMCert;
 String sMobilephone = ApplicantPhone;
-String sSpecialty = sApplicantSpecialty;
+String sSpecialty = sApplicantSpecialty; //Can be a list of specialties - some with special characters
 String sStatus = ApplicantType;
 String sHomeRegion = '63';
 String sRcode = ApplicantReferral;
@@ -39,8 +40,9 @@ String sURL = '';
 
 String sCredentials = '';
 	String encodeScredentials = sCredentials.bytes.encodeBase64().toString();
-//if statement for action node depending on nUsersFound
+//if statement for action node depending on nUsersFound - if a user wasx found - then update - else create new
 if (nUsersFound == 0) {
+    //Create New User payload
     def ActionNode = "<tempRecords><tempRecord><firstName>${sFirstName}</firstName><lastName>${sLastName}</lastName><homeRegion>${sHomeRegion}</homeRegion><status>${sStatus}</status><notes>${sStates}</notes><cell_phone>${sMobilephone}</cell_phone><certification>${sCTMCert}</certification><email>${sEmailAddress}</email><zip>${sZip}</zip><specialty>${sSpecialty}</specialty><referralSourceId>${sRcode}</referralSourceId><applicantExperience>applicant</applicantExperience><Recruiter>${sRecruiter}</Recruiter></tempRecord></tempRecords>";
     if (sSystem == 'production') {sURL = 'https://ctms.contingenttalentmanagement.com/grapetree/clearConnect/2_0/'} else {sURL = 'https://ctmscs.contingenttalentmanagement.com/grapetree_training/clearConnect/2_0/'};
 
