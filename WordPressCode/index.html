@@ -1,0 +1,344 @@
+<div id="teneo-web-chat"></div>
+    <script src="/wp-content/uploads/2021/12/teneo-web-chat.js"></script>
+    <script>
+		window.addEventListener('load', () => {
+			window.TeneoWebChat.initialize(document.getElementById('teneo-web-chat'), {
+				teneoEngineUrl: 'https://7b959i6hs0n96ere3v8idnd9df7lgagb.grapetree-bot.teneo.solutions/grapetree-bot-jbapp-en-prod-1/',
+				//launchIconUrl: 'https://apply.grapetree.com/wp-content/uploads/2021/12/chat-bot-02.png',
+				launchIconUrl: 'https://apply.grapetree.com/wp-content/uploads/2021/12/chatbot-icon-sm.png',
+				botAvatarUrl: 'https://apply.grapetree.com/wp-content/uploads/2021/12/chatbot-icon-sm.png',
+				titleIconUrl: 'https://apply.grapetree.com/wp-content/uploads/2021/12/chat-bot-02.png',
+				//teneoEngineParams {},
+				showCloseButton: true
+			});
+
+			window.TeneoWebChat.call('show_callout','Click me to <strong>start your application!</strong>')
+
+			window.TeneoWebChat.call('set_chat_window_title','GrapeTree Application')
+					
+		});
+
+		/*-------- Variables start here------------*/
+		//const timeoutNotificationMessage = { text: "Your session has expired. Please close this chat and reopen to restart the application." };  // Set the Message for Chat window to be shown to user about Timeout Expired
+		var timeoutSeconds = 1980000; //In Milliseconds (1 second = 1000 MilliSeconds)  // 30mins = 1800000 millisec (Set this time as per requirement)
+		
+		
+		/*-------- Variables ends here------------*/
+
+		//Initialize the Timeout function when the chat starts
+		var twcSessionTimeout = setTimeout(endSessionTWC, timeoutSeconds); // Initialize the timeout here
+		//function to clear the old timer and start new timer again
+		function onSendStopEndSeassionTWC(payload) {
+		  clearTimeout(twcSessionTimeout);           //Clear the timer
+		  twcSessionTimeout = setTimeout(endSessionTWC, timeoutSeconds);
+		}
+		//function to clear the timer and end the session
+		function endSessionTWC() {
+		  clearTimeout(twcSessionTimeout);
+		  //TeneoWebChat.call('send_input', timeoutNotificationMessage);
+		  TeneoWebChat.call('add_message', {
+			"type": "text",
+			"author": "bot",
+			"data": {
+			"text": "I'm sorry, your session has expired due to inactivity. Please close and reopen this chat to restart the application."
+			}
+		  });
+		  TeneoWebChat.call('end_session');
+		  TeneoWebChat.call('disable_user_input')
+		}
+		//Event to reset the timer on a new message sent button clicked
+		TeneoWebChat.on('send_button_clicked', onSendStopEndSeassionTWC)
+		
+		<!-- Send UTM Code Starts Here -->
+			
+		function onEngineRequestSendsUTM(payload) {
+			
+			var sUTMID = sessionStorage.getItem('utm_id');
+			var sUTMMEDIUM = sessionStorage.getItem('utm_medium');
+			var sUTMCAMPAIGN = sessionStorage.getItem('utm_campaign');
+			var sUTMSOURCE = sessionStorage.getItem('utm_source');
+			var sUTMCONTENT = sessionStorage.getItem('utm_content');
+			var sUTMTERM = sessionStorage.getItem('utm_term');
+			var sUTMCHANNEL = sessionStorage.getItem('utm_channel');
+			var sLiveAgentStatus = sessionStorage.getItem('las')
+			
+			if (sUTMID == null){
+				sessionStorage.setItem("utm_id", undefined)
+			}
+			
+			if (sUTMMEDIUM == null){
+				sessionStorage.setItem("utm_medium", undefined)
+			}
+			
+			if (sUTMCAMPAIGN == null){
+				sessionStorage.setItem("utm_campaign", undefined)
+			}
+			
+			if (sUTMSOURCE == null){
+				sessionStorage.setItem("utm_source", undefined)
+			}
+			
+			if (sUTMCONTENT == null){
+				sessionStorage.setItem("utm_content", undefined)
+			}
+			
+			if (sUTMTERM == null){
+				sessionStorage.setItem("utm_term", undefined)
+			}
+			
+			if (sUTMCHANNEL == null){
+				sessionStorage.setItem("utm_channel", undefined)
+			}
+			
+			if (sLiveAgentStatus == null){
+				sessionStorage.setItem("las", undefined)
+			}
+			
+			var requestDetails = payload.requestDetails
+			
+			if (requestDetails.text) {
+				console.log(requestDetails.text)
+				
+			}
+			
+			requestDetails.sUTMID = sessionStorage.getItem('utm_id');
+			
+			
+			requestDetails.sUTMMEDIUM = sessionStorage.getItem('utm_medium');
+			
+			
+			requestDetails.sUTMCAMPAIGN = sessionStorage.getItem('utm_campaign');
+			
+			
+			requestDetails.sUTMSOURCE = sessionStorage.getItem('utm_source');
+			
+			
+			requestDetails.sUTMCONTENT = sessionStorage.getItem('utm_content');
+			
+			
+			requestDetails.sUTMTERM = sessionStorage.getItem('utm_term');
+			
+			
+			requestDetails.sUTMCHANNEL = sessionStorage.getItem('utm_channel');
+			
+			requestDetails.sLiveAgentStatus = sessionStorage.getItem('las');
+							
+		}
+	TeneoWebChat.on('engine_request', onEngineRequestSendsUTM)
+		
+		//<!-- Send UTM Code Ends Here -->
+			
+		//<!--Send Agent Status Code Starts Here -->
+	
+	/*function onEngineRequestSendslas(payload) {
+			
+		var sLiveAgentStatus = sessionStorage.getItem('las')
+		
+		//if (sLiveAgentStatus == null){
+			//sessionStorage.setItem("las", undefined)
+			//}
+		
+		var requestDetails = payload.requestDetails
+			
+			if (requestDetails.text) {
+				console.log(requestDetails.text)
+				
+			}
+		
+		requestDetails.sLiveAgentStatus = sessionStorage.getItem('las');
+		
+		}
+	TeneoWebChat.on('engine_request', onEngineRequestSendslas)*/
+	
+	
+		//<!--Send Agent Status Code Ends Here -->
+			
+		//<!-- Calendly code starts here -->
+
+		function isCalendlyEvent(e) {
+		  return e.data.event &&
+				 e.data.event.indexOf('calendly') === 0;
+		};
+
+		window.addEventListener('message',
+		  function(e) {
+			if (isCalendlyEvent(e)) {
+				if(e.data.event !== "calendly.event_scheduled")
+				return;
+
+				var splituri = e.data.payload.event.uri.split('/')
+
+				var uuid = splituri[splituri.length-1];
+				var settings = {
+					"url": "https://api.calendly.com/scheduled_events/"+uuid,
+					"method": "GET",
+					"timeout": 0,
+					"headers": {
+					"Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2F1dGguY2FsZW5kbHkuY29tIiwiaWF0IjoxNjQwMDMzODkzLCJqdGkiOiI5NGIwY2UxYS1mMzUzLTQ1ODItODMyMi02OGE2MGQ1YWNjZTQiLCJ1c2VyX3V1aWQiOiJEQ0NBUzIyNTZJNlNLSjJWIn0.WKDC_TZJ_TDzTes3YJNiQgoLUYHUUfUZDwWxv9e1Wzc"
+					},
+				};
+				
+				
+				jQuery.ajax(settings).done(function (response) {
+					var scheduledDateTime = new Date(response.resource.start_time);
+					const message = {
+						text: "You have scheduled an interview for "+scheduledDateTime,
+						silent: true,
+						parameters: {
+							command: "appointmentBooking",
+							appointmentYear: scheduledDateTime.getFullYear(),
+							appointmentMonth: scheduledDateTime.getMonth()+1,
+							appointmentDay: scheduledDateTime.getDate(),
+							appointmentHour: scheduledDateTime.getHours(),
+							appointmentMinute: scheduledDateTime.getMinutes()
+						}
+					};
+					TeneoWebChat.call('send_input', message);
+					console.log(scheduledDateTime);
+				});
+			}
+		  }
+		);
+
+		
+
+		//<!-- Calendly code ends here -->
+		
+		/*-------- Output variables start here ------------*/
+        var ApplicantInfo;
+		var ApplicantEmail;
+		var ApplicantName;
+		var ApplicantFirstName;
+		var ApplicantPhone;
+		var ApplicantZip;
+		var ApplicantExperience;
+		var ApplicantCTMCert;
+		var CTMTempId;
+		var CTMStatus;
+		var sSessionID;
+
+        function checkForTranscript(payload) {
+            var tmpTranscript = payload.responseDetails.output.parameters.sTranscript;
+			var tmpEmail = payload.responseDetails.output.parameters.ApplicantEmail;
+			var tmpName = payload.responseDetails.output.parameters.ApplicantName;
+			var tmpFirstName = payload.responseDetails.output.parameters.ApplicantFirstName;
+			var tmpPhone = payload.responseDetails.output.parameters.ApplicantPhone;
+			var tmpZip = payload.responseDetails.output.parameters.ApplicantZip;
+			var tmpCert = payload.responseDetails.output.parameters.ApplicantCTMCert;
+			var tmpExperience = payload.responseDetails.output.parameters.ApplicantExperience;
+			var tmpTempId = payload.responseDetails.output.parameters.sCTMTempId;
+			var tmpStatus = payload.responseDetails.output.parameters.sCTMStatus;
+			var tmpSessionID = sessionStorage.getItem('teneo-web-chat-session-id');
+            if (tmpTranscript) {    //if passed, store locally
+                ApplicantInfo = tmpTranscript;
+            }
+            if (tmpEmail) {    //if passed, store locally
+                ApplicantEmail = tmpEmail;
+            }
+            if (tmpName) {    //if passed, store locally
+                ApplicantName = tmpName;
+            }
+            if (tmpFirstName) {    //if passed, store locally
+                ApplicantFirstName = tmpFirstName;
+            }
+            if (tmpPhone) {    //if passed, store locally
+                ApplicantPhone = tmpPhone;
+            }
+            if (tmpZip) {    //if passed, store locally
+                ApplicantZip = tmpZip;
+            }
+            if (tmpCert) {    //if passed, store locally
+                ApplicantCTMCert = tmpCert;
+            }
+            if (tmpExperience) {    //if passed, store locally
+                ApplicantExperience = tmpExperience;
+            }
+            if (tmpTempId) {    //if passed, store locally
+                CTMTempId = tmpTempId;
+            }
+            if (tmpStatus) {    //if passed, store locally
+                CTMStatus = tmpStatus;
+            }
+			if (tmpSessionID) {	//if passed, store locally
+				sSessionID = tmpSessionID;
+			}
+				sessionStorage.email = ApplicantEmail;
+				sessionStorage.name = ApplicantName;
+				sessionStorage.transcript = ApplicantInfo;
+				sessionStorage.firstname = ApplicantFirstName;
+				sessionStorage.phone = ApplicantPhone;
+				sessionStorage.zip = ApplicantZip;
+				sessionStorage.experience = ApplicantExperience;
+				sessionStorage.cert = ApplicantCTMCert;
+				sessionStorage.tempid = CTMTempId;
+				sessionStorage.ctmstatus = CTMStatus;
+				sessionStorage.sSessionID = sSessionID
+		}
+
+        TeneoWebChat.on('engine_response', checkForTranscript)
+		/*-------- Output variables end here --------------*/
+
+//<!--start snap engage code-->		
+		
+ function myFunction(payload) {
+	 
+	 const button = {
+		 "type": "quickreply",
+		 "quick_replies": 
+		[{
+		"style": "quickreply",
+		"title": "quickreply",
+		"postback":"Less than 6 months",
+		"parameters": {"button": "Less than 6 months"}
+		   },
+		 {
+		"style": "quickreply",
+		"title": "quickreply",
+		"postback":"6 to 10 months",
+		"parameters": {"button": "6 to 10 months"}
+		   },
+		{
+		"style": "quickreply",
+		"title": "quickreply",
+		"postback":"11 months or longer",
+		"parameters": {"button": "11 months or longer"}
+		}
+	 	]
+	 }
+	  
+	  console.log("get_experience:", button);
+
+      var se = document.createElement('script'); se.type = 'text/javascript'; se.async = true;
+  
+      se.src = 'https://storage.googleapis.com/code.snapengage.com/js/fba2b98b-2772-4721-8848-51ce4b001942.js';
+  
+      var done = false;
+      se.onload = se.onreadystatechange = function() {
+      if (!done&&(!this.readyState||this.readyState==='loaded'||this.readyState==='complete')) {
+        done = false;
+		  
+          // Place your SnapEngage JS API code below 
+		var autoclose = .001
+		SnapEngage.hideButton();
+		SnapEngage.setProactiveAutocloseDelay(autoclose);
+		SnapEngage.getAgentStatusAsync(function (online) {
+		  if (online) {
+			  SnapEngage.endChat({closeChatBox: true});
+		  } 
+          if (online) { 
+             sessionStorage.setItem("las", 'online');
+         } else {
+             sessionStorage.setItem("las", 'offline');
+          }
+			
+      });}}	
+	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(se, s);
+	};
+		TeneoWebChat.on('message_button_clicked', myFunction)
+		//TeneoWebChat.on('open_button_clicked', myFunction)
+
+//<!-- end SnapEngage code -->
+		
+    </script>
+    <!-- Teneo Web Chat end -->
+</div>
